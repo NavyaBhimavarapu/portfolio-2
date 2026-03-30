@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef } from "react"
 
 const roles = ["Web Developer", "Web Designer", "Frontend Developer"]
 
@@ -51,7 +51,7 @@ function TinyBooks({ style }: { style?: React.CSSProperties }) {
 // Character images array - cycles on hover
 const characterImages = [
   "/my-image1.png",
-  "/my-image.png", 
+  "/my-image.png",
 ]
 
 export function HeroSection() {
@@ -60,7 +60,7 @@ export function HeroSection() {
   const [imgIndex, setImgIndex] = useState(0)
   const [isPanelHovering, setIsPanelHovering] = useState(false)
   const [imgTransitioning, setImgTransitioning] = useState(false)
-  const intervalRef = useRef<ReturnType<typeof setInterval>>()
+  const intervalRef = useRef<number | undefined>(undefined)
 
   // Role cycling
   useEffect(() => {
@@ -78,7 +78,7 @@ export function HeroSection() {
   // Image cycling on panel hover
   useEffect(() => {
     if (!isPanelHovering) return
-    intervalRef.current = setInterval(() => {
+    intervalRef.current = window.setInterval(() => {
       setImgTransitioning(true)
       setTimeout(() => {
         setImgIndex((prev) => (prev + 1) % characterImages.length)
@@ -89,7 +89,8 @@ export function HeroSection() {
   }, [isPanelHovering])
 
   return (
-    <section id="home" className="min-h-screen relative overflow-hidden bg-background">
+    // ✅ FIX: Added pt-20 so content starts below the fixed navbar (navbar is ~80px tall)
+    <section id="home" className="min-h-screen relative overflow-hidden bg-background pt-20">
       {/* Speed lines */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(15)].map((_, i) => (
@@ -118,11 +119,11 @@ export function HeroSection() {
       </div>
 
       {/* Main content */}
-      <div className="relative z-10 min-h-screen flex items-center">
+      <div className="relative z-10 min-h-[calc(100vh-5rem)] flex items-center">
         <div className="w-full max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16">
-          
+
           <div className="grid grid-cols-12 gap-4 md:gap-6 items-stretch min-h-[70vh]">
-            
+
             {/* Left text panel */}
             <div className="col-span-12 lg:col-span-7 flex items-center">
               <div className="w-full border-[6px] border-foreground p-8 md:p-12 bg-background relative group">
@@ -131,9 +132,13 @@ export function HeroSection() {
                 </div>
 
                 <h1 className="font-[family-name:var(--font-display)] text-4xl md:text-5xl lg:text-6xl mb-6">
-                  <span className="text-[#FFDDE2]">Hello,I'm Navya</span>
+                  <span className="text-[#FFDDE2]">Hello, I&apos;m Navya</span>
                 </h1>
-                <p className="font-[family-name:var(--font-display)] text-4xl md:text-5xl lg:text-6xl mb-6"><span className="text-black">And i'm a</span>And i'm a</p>
+
+                {/* ✅ FIX: Removed the duplicate "And i'm a" — was rendered twice before */}
+                <p className="font-[family-name:var(--font-display)] text-4xl md:text-5xl lg:text-6xl mb-6">
+                  And I&apos;m a
+                </p>
 
                 <h2 className="font-[family-name:var(--font-display)] text-3xl md:text-4xl lg:text-5xl mb-8">
                   <span
@@ -154,7 +159,7 @@ export function HeroSection() {
                 </h2>
 
                 <p className="text-base md:text-lg leading-relaxed text-muted-foreground max-w-lg">
-                  Passionate about technology, I specialize in Web Development and Designing. 
+                  Passionate about technology, I specialize in Web Development and Designing.
                   Building innovative solutions and continuously expanding my skills.
                 </p>
 
@@ -206,20 +211,20 @@ export function HeroSection() {
                   ))}
                 </div>
 
-                {/* Image with transition */}
-                <div className="absolute inset-0 flex items-center justify-center p-6">
+                {/* ✅ FIX: Image uses object-cover + full panel size for proper display */}
+                <div className="absolute inset-0 flex items-end justify-center">
                   <img
                     src={characterImages[imgIndex]}
                     alt="Character"
-                    className="w-80 h-80 md:w-[420px] md:h-[420px] object-contain mx-auto transition-all duration-300"
+                    className="w-full h-full object-contain object-bottom transition-all duration-300"
                     style={{
                       opacity: imgTransitioning ? 0 : 1,
                       transform: imgTransitioning ? "scale(0.95)" : "scale(1)",
                     }}
                     onError={(e) => {
-                      // Gracefully show first image if others don't exist
-                      if ((e.target as HTMLImageElement).src !== window.location.origin + "/my-image1.png") {
-                        (e.target as HTMLImageElement).src = "/my-image.png"
+                      const target = e.target as HTMLImageElement
+                      if (!target.src.endsWith("/my-image.png")) {
+                        target.src = "/my-image.png"
                       }
                     }}
                   />
