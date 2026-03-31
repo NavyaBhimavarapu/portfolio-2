@@ -12,35 +12,41 @@ interface Petal {
   swaySpeed: number
   swayAmount: number
   opacity: number
-  type: "petal" | "leaf" | "sparkle"
+  type: "petal" | "leaf" | "sparkle" | "mini"
   phase: number
+  drift: number // gentle horizontal drift
 }
 
 function PetalSVG({ type, opacity }: { type: Petal["type"]; opacity: number }) {
   if (type === "sparkle") {
     return (
       <svg viewBox="0 0 20 20" className="w-full h-full">
-        <path
-          d="M10 2 L11.5 8.5 L18 10 L11.5 11.5 L10 18 L8.5 11.5 L2 10 L8.5 8.5 Z"
-          fill="#FFDDE2"
-          opacity={opacity * 0.6}
-        />
+        <path d="M10 2 L11.5 8.5 L18 10 L11.5 11.5 L10 18 L8.5 11.5 L2 10 L8.5 8.5 Z" fill="#FFDDE2" opacity={opacity * 0.7} />
+      </svg>
+    )
+  }
+  if (type === "mini") {
+    return (
+      <svg viewBox="0 0 60 60" className="w-full h-full">
+        <ellipse cx="30" cy="30" rx="28" ry="14" fill="#FFB6C1" opacity={opacity * 0.9} />
+        <ellipse cx="30" cy="30" rx="12" ry="6" fill="#FFDDE2" opacity={opacity * 0.5} />
       </svg>
     )
   }
   if (type === "leaf") {
     return (
       <svg viewBox="0 0 100 100" className="w-full h-full">
-        <ellipse cx="50" cy="50" rx="20" ry="40" fill="#d4f0c0" opacity={opacity * 0.5} />
-        <line x1="50" y1="15" x2="50" y2="85" stroke="#a8d89b" strokeWidth="2" opacity={opacity * 0.4} />
+        <ellipse cx="50" cy="50" rx="20" ry="42" fill="#d4f0c0" opacity={opacity * 0.45} />
+        <line x1="50" y1="12" x2="50" y2="88" stroke="#a8d89b" strokeWidth="1.5" opacity={opacity * 0.35} />
       </svg>
     )
   }
-  // Default sakura petal
+  // Default sakura petal — slightly more detailed
   return (
-    <svg viewBox="0 0 100 100" className="w-full h-full">
-      <ellipse cx="50" cy="50" rx="45" ry="22" fill="#FFDDE2" stroke="#FFB6C1" strokeWidth="2" opacity={opacity} />
-      <ellipse cx="50" cy="50" rx="18" ry="8" fill="#FFB6C1" opacity={opacity * 0.6} />
+    <svg viewBox="0 0 120 60" className="w-full h-full">
+      <ellipse cx="60" cy="30" rx="55" ry="24" fill="#FFDDE2" stroke="#FFB6C1" strokeWidth="1.5" opacity={opacity} />
+      <ellipse cx="60" cy="30" rx="22" ry="10" fill="#FFB6C1" opacity={opacity * 0.55} />
+      <ellipse cx="60" cy="30" rx="8" ry="4" fill="#ff9eb5" opacity={opacity * 0.3} />
     </svg>
   )
 }
@@ -57,21 +63,27 @@ export function SakuraPetals() {
     const W = window.innerWidth
     const H = window.innerHeight
 
-    const types: Petal["type"][] = ["petal", "petal", "petal", "petal", "leaf", "sparkle"]
+    const types: Petal["type"][] = ["petal", "petal", "petal", "petal", "petal", "leaf", "sparkle", "mini", "mini"]
 
-    const initialPetals: Petal[] = Array.from({ length: 22 }, (_, i) => ({
+    const initialPetals: Petal[] = Array.from({ length: 28 }, (_, i) => ({
       id: i,
       x: Math.random() * W,
-      y: Math.random() * H - H,
-      size: i % 5 === 0 ? 7 + Math.random() * 5 : 10 + Math.random() * 12,
+      y: Math.random() * H - H * 0.5, // start some already on screen, some above
+      size: i % 6 === 0
+        ? 5 + Math.random() * 4        // tiny sparkles
+        : i % 7 === 0
+          ? 6 + Math.random() * 5      // leaves
+          : 11 + Math.random() * 14,   // petals
       rotation: Math.random() * 360,
-      speed: 0.5 + Math.random() * 1,
-      swaySpeed: 0.006 + Math.random() * 0.014,
-      swayAmount: 25 + Math.random() * 55,
-      opacity: 0.5 + Math.random() * 0.5,
+      speed: 0.4 + Math.random() * 0.9,
+      swaySpeed: 0.004 + Math.random() * 0.01,
+      swayAmount: 20 + Math.random() * 50,
+      opacity: 0.45 + Math.random() * 0.55,
       type: types[Math.floor(Math.random() * types.length)],
       phase: Math.random() * Math.PI * 2,
+      drift: (Math.random() - 0.5) * 0.3, // subtle consistent horizontal drift
     }))
+
     setPetals(initialPetals)
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -88,26 +100,32 @@ export function SakuraPetals() {
       setPetals((prev) =>
         prev.map((petal) => {
           let newY = petal.y + petal.speed
-          let newX = petal.x + Math.sin(time * petal.swaySpeed + petal.phase) * 0.6
-          let newRotation = petal.rotation + petal.speed * 1.2
+          // Smooth sinusoidal sway + gentle drift
+          let newX = petal.x
+            + Math.sin(time * petal.swaySpeed + petal.phase) * 0.55
+            + Math.cos(time * petal.swaySpeed * 0.6 + petal.phase) * 0.2
+            + petal.drift
 
-          // Mouse repulsion
+          // Slow rotation tied to movement
+          const newRotation = petal.rotation + petal.speed * 0.8 + Math.sin(time * petal.swaySpeed) * 0.5
+
+          // Gentle mouse repulsion — softer radius
           const dx = petal.x - mouseRef.current.x
           const dy = petal.y - mouseRef.current.y
           const dist = Math.sqrt(dx * dx + dy * dy)
-          if (dist < 100 && dist > 0) {
-            const force = (100 - dist) / 100
-            newX += (dx / dist) * force * 5
-            newY += (dy / dist) * force * 3
+          if (dist < 90 && dist > 0) {
+            const force = (90 - dist) / 90
+            newX += (dx / dist) * force * 3.5
+            newY += (dy / dist) * force * 2
           }
 
-          // Wrap
-          if (newY > H + 60) {
-            newY = -30
+          // Wrap around edges smoothly
+          if (newY > H + 80) {
+            newY = -30 - Math.random() * 60
             newX = Math.random() * W
           }
-          if (newX < -30) newX = W + 20
-          if (newX > W + 30) newX = -20
+          if (newX < -40) newX = W + 20
+          if (newX > W + 40) newX = -20
 
           return { ...petal, x: newX, y: newY, rotation: newRotation }
         })
@@ -134,7 +152,7 @@ export function SakuraPetals() {
             left: petal.x,
             top: petal.y,
             width: petal.size,
-            height: petal.size,
+            height: petal.size * (petal.type === "petal" ? 0.55 : petal.type === "mini" ? 0.55 : 1),
             transform: `rotate(${petal.rotation}deg)`,
           }}
         >
