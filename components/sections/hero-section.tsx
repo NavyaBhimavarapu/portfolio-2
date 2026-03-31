@@ -36,7 +36,6 @@ function TinyBooks({ style }: { style?: React.CSSProperties }) {
   )
 }
 
-// Cursor-reactive tilt panel
 function TiltPanel({ children, className = "", style }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
   const ref = useRef<HTMLDivElement>(null)
   const [tilt, setTilt] = useState({ x: 0, y: 0 })
@@ -80,48 +79,33 @@ function TiltPanel({ children, className = "", style }: { children: React.ReactN
   )
 }
 
-// Sunray stripes SVG background for image panel
 function SunrayBackground() {
-  // 16 thin rays radiating from bottom-center in a semicircle
   const rays: React.ReactNode[] = []
   const numRays = 16
-  const cx = 50   // percent origin x
-  const cy = 110  // percent origin y (slightly below panel bottom for natural arc)
-  const length = 160 // ray length in percentage units
+  const cx = 50
+  const cy = 110
+  const length = 160
 
   for (let i = 0; i < numRays; i++) {
-    // spread rays from -80deg to +80deg (upward fan)
     const angleDeg = -80 + (160 / (numRays - 1)) * i
     const angleRad = (angleDeg * Math.PI) / 180
     const x2 = cx + length * Math.sin(angleRad)
     const y2 = cy - length * Math.cos(angleRad)
-
     rays.push(
-      <line
-        key={i}
-        x1={`${cx}%`}
-        y1={`${cy}%`}
-        x2={`${x2}%`}
-        y2={`${y2}%`}
-        stroke="black"
-        strokeWidth="1.5"
-        strokeOpacity="0.07"
-      />
+      <line key={i} x1={`${cx}%`} y1={`${cy}%`} x2={`${x2}%`} y2={`${y2}%`}
+        stroke="black" strokeWidth="1.5" strokeOpacity="0.07" />
     )
   }
 
   return (
-    <svg
-      className="absolute inset-0 w-full h-full pointer-events-none z-0"
-      xmlns="http://www.w3.org/2000/svg"
-      preserveAspectRatio="none"
-    >
+    <svg className="absolute inset-0 w-full h-full pointer-events-none z-0"
+      xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
       {rays}
     </svg>
   )
 }
 
-const characterImages = ["/my-image1.png", "/my-image.png"]
+const characterImages = ["/my-image1 (2).png", "/my-image (2).png"]
 
 export function HeroSection() {
   const [roleIndex, setRoleIndex] = useState(0)
@@ -136,7 +120,6 @@ export function HeroSection() {
     return () => clearInterval(interval)
   }, [isHovering])
 
-  // Auto-cycle images every 2.5s — instant swap, no fade
   useEffect(() => {
     intervalRef.current = window.setInterval(() => {
       setImgIndex((prev) => (prev + 1) % characterImages.length)
@@ -149,7 +132,8 @@ export function HeroSection() {
       {/* Speed lines */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(15)].map((_, i) => (
-          <div key={i} className="absolute bg-foreground/[0.03]" style={{ width: "2px", height: "200%", right: `${i * 7}%`, top: "-50%", transform: `rotate(${12 + i * 0.5}deg)` }} />
+          <div key={i} className="absolute bg-foreground/[0.03]"
+            style={{ width: "2px", height: "200%", right: `${i * 7}%`, top: "-50%", transform: `rotate(${12 + i * 0.5}deg)` }} />
         ))}
       </div>
 
@@ -167,10 +151,9 @@ export function HeroSection() {
         <div className="w-full max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16">
           <div className="grid grid-cols-12 gap-4 md:gap-6 items-stretch min-h-[70vh]">
 
-            {/* Left text panel — cursor reactive tilt */}
+            {/* Left text panel */}
             <div className="col-span-12 lg:col-span-7 flex items-center">
               <TiltPanel className="w-full border-[6px] border-foreground p-8 md:p-12 bg-background relative group">
-                {/* FIX: "01" label properly positioned above heading */}
                 <div className="absolute -top-4 -left-3 bg-foreground text-background px-3 py-1.5 font-[family-name:var(--font-display)] text-sm leading-none">01</div>
 
                 <h1 className="font-[family-name:var(--font-display)] text-4xl md:text-5xl lg:text-6xl mb-6 mt-2">
@@ -180,15 +163,11 @@ export function HeroSection() {
                 <p className="font-[family-name:var(--font-display)] text-3xl md:text-5xl lg:text-6xl mb-3">And I&apos;m a</p>
 
                 <h2 className="font-[family-name:var(--font-display)] text-3xl md:text-4xl lg:text-5xl mb-8">
-                  <span
-                    className="relative inline-block cursor-pointer"
+                  <span className="relative inline-block cursor-pointer"
                     onMouseEnter={() => setIsHovering(true)}
-                    onMouseLeave={() => setIsHovering(false)}
-                  >
-                    <span
-                      className="relative z-10 px-3 py-1 inline-block transition-all duration-300"
-                      style={{ background: isHovering ? "#FFDDE2" : "var(--foreground)", color: isHovering ? "var(--foreground)" : "var(--background)" }}
-                    >
+                    onMouseLeave={() => setIsHovering(false)}>
+                    <span className="relative z-10 px-3 py-1 inline-block transition-all duration-300"
+                      style={{ background: isHovering ? "#FFDDE2" : "var(--foreground)", color: isHovering ? "var(--foreground)" : "var(--background)" }}>
                       {roles[roleIndex]}
                     </span>
                   </span>
@@ -198,7 +177,6 @@ export function HeroSection() {
                   CS undergrad at IARE, passionate about Web Development and Design. Building innovative solutions and continuously expanding my skills.
                 </p>
 
-                {/* CTA buttons */}
                 <div className="flex flex-wrap gap-3 mt-8">
                   <a href="#projects" className="px-5 py-2.5 bg-foreground text-background font-[family-name:var(--font-display)] text-sm tracking-wide border-2 border-foreground hover:bg-[#FFDDE2] hover:text-foreground transition-all duration-200">
                     View Work ↓
@@ -217,25 +195,40 @@ export function HeroSection() {
               </TiltPanel>
             </div>
 
-            {/* Right image panel */}
-            <div className="col-span-12 lg:col-span-5 flex items-center">
+            {/* Right image panel — FIXED alignment */}
+            <div className="col-span-12 lg:col-span-5 flex items-stretch">
               <TiltPanel
-                className="w-full h-full min-h-[400px] md:min-h-[500px] lg:min-h-full border-[6px] border-foreground bg-secondary/5 relative overflow-hidden"
+                className="w-full border-[6px] border-foreground bg-secondary/5 relative overflow-hidden"
+                style={{ minHeight: "520px" }}
               >
                 {/* "!" badge */}
                 <div className="absolute -top-4 -right-3 bg-[#FFDDE2] text-foreground px-3 py-1.5 font-[family-name:var(--font-display)] text-sm z-20">!</div>
 
-                {/* Sunray background */}
                 <SunrayBackground />
 
-                {/* Image — instant swap, no fade, perfectly centered and bottom-aligned */}
-                <div className="absolute inset-0 flex items-end justify-center z-10">
+                {/* 
+                  KEY FIX: Image is absolutely positioned, pinned to the bottom of the panel.
+                  - inset-x-0 bottom-0: stretches full width, anchored at bottom
+                  - height: 92%: fills most of the panel so the character looks tall and present
+                  - objectFit contain + objectPosition bottom center: 
+                      scales the image to fit within the box while keeping feet at the bottom edge
+                  This prevents the tiny/floaty look and makes the character feel grounded.
+                */}
+                <div
+                  className="absolute inset-x-0 bottom-0 z-10"
+                  style={{ height: "92%" }}
+                >
                   <img
                     key={imgIndex}
                     src={characterImages[imgIndex]}
                     alt="Character"
-                    className="w-full h-full object-contain object-bottom"
-                    style={{ display: "block" }}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                      objectPosition: "bottom center",
+                      display: "block",
+                    }}
                     onError={(e) => {
                       const t = e.target as HTMLImageElement
                       if (!t.src.endsWith("/my-image.png")) t.src = "/my-image.png"
@@ -246,14 +239,11 @@ export function HeroSection() {
                 {/* Dot indicators */}
                 <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-20">
                   {characterImages.map((_, i) => (
-                    <div
-                      key={i}
-                      className="w-1.5 h-1.5 rounded-full transition-all duration-300"
+                    <div key={i} className="w-1.5 h-1.5 rounded-full transition-all duration-300"
                       style={{
                         background: i === imgIndex ? "var(--foreground)" : "var(--muted-foreground)",
                         opacity: i === imgIndex ? 1 : 0.3,
-                      }}
-                    />
+                      }} />
                   ))}
                 </div>
 
@@ -269,7 +259,7 @@ export function HeroSection() {
 
       {/* Scroll indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10">
-        <span className="font-[family-name:var(--font-display)] text-[10px] tracking-[0.4em] text-muted-foreground">SCROLL</span>
+        <span className="font-[family-name:var(--font-display)] text-[10px] tracking-[0.4em] text-muted-foreground"></span>
         <div className="w-px h-8 bg-foreground/40 animate-pulse" />
       </div>
     </section>

@@ -58,9 +58,9 @@ const contacts = [
   },
   {
     label: "Instagram",
-    handle: "@navya._sri",
+    handle: "@navya_bhimavarapu",
     sub: "Behind the scenes",
-    url: "#",  // add real URL when ready
+    url: "#", 
     Icon: InstagramIcon,
   },
 ]
@@ -243,7 +243,7 @@ export function ContactSection() {
               <span className="text-[#FFDDE2]">Navya</span> Bhimavarapu
             </p>
             <p className="font-[family-name:var(--font-display)] text-[10px] tracking-[0.4em] text-muted-foreground">
-              © 2024 · CRAFTED WITH ♡ + ∞ CUPS OF TEA
+              © 2026 · CRAFTED WITH ♡ + ∞ LINES OF CODE
             </p>
           </div>
         </div>

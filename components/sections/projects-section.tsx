@@ -20,7 +20,7 @@ const projects: Project[] = [
     tags: ["FastAPI", "XGBoost", "Scikit-learn", "SQLite", "Python"],
     badge: "✦ ML-Powered",
     githubUrl: "https://github.com/padmakruthi/goldenbatch-ai",
-    image: "/GB.png",
+    image: "/GB2.png",
   },
   {
     title: "Echo Health",
